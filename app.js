@@ -3,13 +3,37 @@ const Intern = require('./lib/intern');
 const Manager = require('./lib/manager');
 const inquirer = require('inquirer');
 const fs = require('fs');
-const util = require('util')
+const util = require('util');
 
-const appendFileAsync = util.promisify(fs.appendFile);
+const writeFileAsync = util.promisify(fs.writeFile);
 
 
 const startApp = function startApp() {
-    appendFileAsync('./output/team.html', `
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'title',
+            message: 'What title do they have, manager, engineer, or intern?'
+        }
+    ]).then(answers => {
+        const role = answers.title.toLowerCase()
+        if (role === 'manager') {
+            const mngr = new Manager();
+            mngr.getName();
+        } else if (role === 'engineer') {
+            const eng = new Engineer();
+            eng.getName();
+        } else if (role === 'intern') {
+            const intern = new Intern();
+            intern.getName();
+        } else {
+            return console.log('error')
+        }
+    })
+}
+writeFileAsync('./output/team.html', `
+
         <!doctype html>
 <html lang="en">
 
@@ -28,31 +52,9 @@ const startApp = function startApp() {
 <body>
     <h1>Your Team</h1>
     <div class="container">
+    <div class="row text-center">
         `)
-
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'title',
-            message: 'What title do they have, manager, engineer, or intern?'
-        }
-    ]).then(answers => {
-        const role = answers.title.toLowerCase()
-        if (role === 'manager') {
-            const mngr = new Manager();
-            mngr.createHTML();
-        } else if (role === 'engineer') {
-            const eng = new Engineer();
-            eng.createHTML();
-        } else if (role === 'intern') {
-            const intern = new Intern();
-            intern.createHTML();
-        } else {
-            return console.log('error')
-        }
-    })
-}
-
 startApp();
+
 
 exports.startApp = startApp
